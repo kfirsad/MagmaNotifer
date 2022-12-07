@@ -12,6 +12,7 @@ var currentTimeMinutes;
 var nightHours = [23, 00, 01, 02, 03, 04, 05, 06];
 var isNightTime;
 var inAnotherTab;
+var magmaTabId;
 
 startSystem();
 
@@ -50,6 +51,7 @@ stopAudio();
      var activeTab = tabs[0];
 	 console.log(activeTab.url);
 	 if(activeTab.url.startsWith("https://estymbra.com/MDZ0311/Pages/Inbox/Inbox.aspx") && activeTab.url.slice(-1) == '0'){
+		 magmaTabId = activeTab.id;
 	  console.log("User inside Magma");
 		refreshPage();
 	  isInsideMagma = true;
@@ -60,7 +62,9 @@ stopAudio();
 stopAudio();	}
 	
 		chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
+
 		if(changeInfo.status == 'complete' && tab.url.startsWith("https://estymbra.com/MDZ0311/Pages/Inbox/Inbox.aspx") && tab.url.slice(-1) == '0'){
+			magmaTabId = tab.id;
 		console.log("User inside Magma");
 		isInsideMagma = true;
 		lookForMesseages();
@@ -118,13 +122,13 @@ stopAudio();	}
 	}
 
 var activeTabId;
-var magmaTabId;
 var activeTab;
 var check;
 
 function lookForMesseages(){
 
 		chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
+
 		if(tab.url.startsWith("https://estymbra.com/MDZ0311/Pages/Inbox/Inbox.aspx") && tab.url.slice(-1) == '0'){
 			magmaTabId = tab.id;
 			isInsideMagma = true;
@@ -138,6 +142,7 @@ function lookForMesseages(){
 	  console.log(tabs[0].url);
 	  
 	  if(tabs[0].url.startsWith("https://estymbra.com/MDZ0311/Pages/Inbox/Inbox.aspx") && tabs[0].url.slice(-1) == '0'){
+		  magmaTabId = tabs[0].id;
 		 isInsideMagma = true;
 		console.log("User updated tabs but Magma still opened.");
 	  }else{
@@ -145,6 +150,7 @@ function lookForMesseages(){
 			check = false;
 		for (tab of tabs){
 			if(tab.url.startsWith("https://estymbra.com/MDZ0311/Pages/Inbox/Inbox.aspx") && tab.url.slice(-1) == '0'){
+				magmaTabId = tab.id;
 				 check = true;
 				 activeTab = tab;
 				console.log("User updated tabs but Magma still opened.");
@@ -185,17 +191,17 @@ function lookForMesseages(){
 		});
 		});
 		
-	// chrome.tabs.onRemoved.addListener(function(tabid, removed) {
-	// if(tabid.url.startsWith("https://estymbra.com/MDZ0311/Pages/Inbox/Inbox.aspx") && currentTab.url.slice(-1) == '0'){
-			// isInsideMagma = false;
-			// inAnotherTab = false;
+	chrome.tabs.onRemoved.addListener(function(tabid, removed) {
+	if(tabid == magmaTabId){
+			isInsideMagma = false;
+			inAnotherTab = false;
 			
-			// stopAudio();
+			stopAudio();
 			
-			// console.log("Magma tab removed");
+			console.log("Magma tab removed");
 
-		// }
-		// })
+		}
+		})
 
 	var interval = setInterval(function(){ // Start loop
 
